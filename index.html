@@ -258,14 +258,13 @@
         function showDetail(item) {
             listContainer.className = 'pb-10 block max-w-3xl mx-auto w-full'; 
             
-            // Generate Garis Turunan Dinamis
-            let garisTurunanHTML = '';
+            // Generate List Hierarki (Hanya Value) secara Dinamis
+            let hierarkiHTML = '';
             const hierarkiLevels = ['Jenis', 'Divisi', 'Sub Divisi', 'Kelas', 'Subkelas'];
             
             hierarkiLevels.forEach(level => {
-                // Hanya render timeline baris jika data untuk level tersebut ada dan tidak kosong
                 if (item[level] && item[level].toString().trim() !== '') {
-                    garisTurunanHTML += `<DetailRow label="${level}" value="${item[level]}" />\n`;
+                    hierarkiHTML += `<HierarchyRow value="${item[level]}" />\n`;
                 }
             });
 
@@ -298,27 +297,23 @@
                             </div>
                         </div>
                         
-                        <!-- Hierarki Detail -->
+                        <!-- List Hasil Isian Kolom -->
                         <div class="pt-6 border-t border-gray-100 dark:border-gray-700/80">
-                            <h3 class="text-xs font-bold text-gray-900 dark:text-gray-300 mb-5 uppercase tracking-wider flex items-center gap-2">
-                                <i class="fa-solid fa-sitemap text-gray-400"></i> Garis Turunan
-                            </h3>
                             <div class="space-y-4 relative before:absolute before:inset-y-0 before:left-[11px] md:before:left-[15px] before:w-[2px] before:bg-gray-200 dark:before:bg-gray-700 ml-1 md:ml-0">
-                                ${garisTurunanHTML}
+                                ${hierarkiHTML}
                             </div>
                         </div>
                     </div>
                 </div>
             `;
             
-            // Helper parsing timeline
-            listContainer.innerHTML = listContainer.innerHTML.replace(/<DetailRow label="(.*?)" value="(.*?)" \/>/g, 
+            // Helper replace khusus untuk list value murni (tanpa label)
+            listContainer.innerHTML = listContainer.innerHTML.replace(/<HierarchyRow value="(.*?)" \/>/g, 
                 `<div class="relative pl-8 md:pl-10 group">
-                    <div class="absolute left-[-1px] md:left-[3px] top-1.5 w-[24px] h-[24px] rounded-full bg-white dark:bg-gray-800 border-2 border-brand-500 z-10 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                    <div class="absolute left-[-1px] md:left-[3px] top-1 w-[24px] h-[24px] rounded-full bg-white dark:bg-gray-800 border-2 border-brand-500 z-10 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
                         <div class="w-2 h-2 rounded-full bg-brand-500"></div>
                     </div>
-                    <p class="text-[11px] md:text-xs font-bold text-gray-400 dark:text-gray-500 mb-0.5 uppercase tracking-wide">$1</p>
-                    <p class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-200 leading-tight">$2</p>
+                    <p class="text-sm md:text-base font-semibold text-gray-800 dark:text-gray-200 leading-relaxed py-0.5">$1</p>
                 </div>`
             );
 
