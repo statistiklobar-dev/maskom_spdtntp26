@@ -36,7 +36,7 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 min-h-screen flex justify-center antialiased transition-colors duration-300">
 
-    <!-- Responsive Container (Full on mobile, centered card on Desktop) -->
+    <!-- Responsive Container -->
     <div class="w-full max-w-5xl md:my-8 md:rounded-3xl bg-white dark:bg-gray-900 md:shadow-2xl md:border border-gray-200 dark:border-gray-800 flex flex-col relative overflow-hidden h-screen md:h-[90vh]">
         
         <!-- Header -->
@@ -84,7 +84,7 @@
                 <p class="font-medium text-center">Sinkronisasi Master Komoditas SPDT NTP 2026...</p>
             </div>
             
-            <!-- List Container (Grid for desktop, List for mobile) -->
+            <!-- List Container -->
             <ul id="listContainer" class="pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"></ul>
         </main>
     </div>
@@ -137,7 +137,7 @@
             if (jenisAktif === '1. KONSUMSI') {
                 return ['Jenis', 'Divisi', 'Sub Divisi', 'Kelas', 'Subkelas', 'Komoditas'];
             } else {
-                return ['Jenis', 'Divisi', 'Sub Divisi', 'Komoditas']; // Langsung ke komoditas setelah Sub Divisi
+                return ['Jenis', 'Divisi', 'Sub Divisi', 'Komoditas']; 
             }
         }
 
@@ -157,13 +157,12 @@
 
         function renderLevel() {
             listContainer.innerHTML = '';
-            listContainer.className = 'pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4'; // Reset to grid
+            listContainer.className = 'pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4'; 
             isSearching = false;
             
             const activeLevels = getActiveLevels();
             let currentDepth = currentPath.length; 
             
-            // UI Breadcrumb
             if(currentDepth === 0) {
                 breadcrumb.classList.add('hidden');
                 breadcrumb.classList.remove('flex');
@@ -178,7 +177,6 @@
                 filteredData = filteredData.filter(row => row[activeLevels[i]] === currentPath[i].value);
             }
 
-            // Jika tahapan selanjutnya adalah Komoditas
             if(currentDepth === activeLevels.length - 1) {
                 renderKomoditasList(filteredData);
                 return;
@@ -216,7 +214,6 @@
 
         function renderKomoditasList(dataToRender) {
             listContainer.innerHTML = '';
-            // Tampilan komoditas dibuat 1 kolom di mobile, 2 kolom di desktop agar lega
             listContainer.className = 'pb-10 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4'; 
             
             const uniqueKomoditas = [];
@@ -259,13 +256,18 @@
         }
 
         function showDetail(item) {
-            listContainer.className = 'pb-10 block max-w-3xl mx-auto w-full'; // Center detail on desktop
+            listContainer.className = 'pb-10 block max-w-3xl mx-auto w-full'; 
             
-            const isKonsumsi = item['Jenis'] === '1. KONSUMSI';
+            // Generate Garis Turunan Dinamis
+            let garisTurunanHTML = '';
+            const hierarkiLevels = ['Jenis', 'Divisi', 'Sub Divisi', 'Kelas', 'Subkelas'];
             
-            // Render hierarki spesifik
-            const kelasRow = isKonsumsi ? `<DetailRow label="Kelas" value="${item['Kelas'] || '-'}" />` : '';
-            const subkelasRow = isKonsumsi ? `<DetailRow label="Subkelas" value="${item['Subkelas'] || '-'}" />` : '';
+            hierarkiLevels.forEach(level => {
+                // Hanya render timeline baris jika data untuk level tersebut ada dan tidak kosong
+                if (item[level] && item[level].toString().trim() !== '') {
+                    garisTurunanHTML += `<DetailRow label="${level}" value="${item[level]}" />\n`;
+                }
+            });
 
             listContainer.innerHTML = `
                 <div class="slide-in">
@@ -302,11 +304,7 @@
                                 <i class="fa-solid fa-sitemap text-gray-400"></i> Garis Turunan
                             </h3>
                             <div class="space-y-4 relative before:absolute before:inset-y-0 before:left-[11px] md:before:left-[15px] before:w-[2px] before:bg-gray-200 dark:before:bg-gray-700 ml-1 md:ml-0">
-                                <DetailRow label="Jenis" value="${item['Jenis']}" />
-                                <DetailRow label="Divisi" value="${item['Divisi']}" />
-                                <DetailRow label="Sub Divisi" value="${item['Sub Divisi']}" />
-                                ${kelasRow}
-                                ${subkelasRow}
+                                ${garisTurunanHTML}
                             </div>
                         </div>
                     </div>
@@ -334,7 +332,6 @@
             const query = e.target.value.toLowerCase().trim();
             if(query.length === 0) {
                 if(isSearching) {
-                    // Reset array if we were searching globally
                     currentPath = [];
                     renderLevel(); 
                 }
@@ -358,7 +355,7 @@
         breadcrumb.addEventListener('click', () => {
             if (isSearching) {
                 searchInput.value = '';
-                currentPath = []; // Kembali ke menu utama (Jenis) jika menekan kembali dari hasil pencarian
+                currentPath = []; 
                 renderLevel();
             } else {
                 currentPath.pop();
